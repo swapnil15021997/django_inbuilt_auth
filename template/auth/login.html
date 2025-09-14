@@ -1,0 +1,38 @@
+{% extends 'layouts/app.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-sm-6">
+        <h2 class="text-muted">Login</h2>
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{form_id_for_username_label}}">User Name</label>
+                <input type="text" name="{{form.username.name}}" value="{{form.username.value}}" >
+                <span>{{form.username.errors}}</span>
+            </div>
+
+
+            <div class="form-group">
+                <label for="{{form_id_for_password_label}}">Password</label>
+                <input type="password" name="{{form.password.name}}" value="{{form.password.value}}">
+                <span>{{form.password.errors}}</span>
+            </div>
+
+            <div class="form-group">
+                    <button type="submit" class="btn btn-dark">Submit</button>
+            </div>
+
+
+        
+
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
