@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.http import JsonResponse
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password
@@ -196,5 +197,54 @@ def product_remove(request):
 
 
 
+def p_list(request):
+    draw = request.POST.get('draw')
+    start = request.POST.get('start')
+    order = request.POST.get('order[0]column')
+    search_value = request.POST.get('search[value]').strip()
+    length = int(request.POST.get("length", 10))
+    sort  = request.POST.get('order[0][dir]')
+    
+    columns = ['id', 'name']
+    order_col = columns[order]
+    if sort == "desc":
+        order_by_col = '-'+ order_col
+    else:
+        order_by_col = order_col
+    
 
+    prod = Product.objects.all()
+
+    if search_value:    
+        prod = prod.filter(emp_name__icontains=search_value)
+    
+    total = prod.count() 
+    prod = prod.order_by(order_by_col)[start:start + length]
+    
+    data = []
+    total = product.count() 
+   
+    for prod in product:
+        data.append({
+            "product_id":prod.product_id,
+            "name":prod.name,
+            "price":prod.price,
+            "actions":f"""
+                 <a href="#" onclick="prodDetails({prod.product_id})" class="btn btn-sm btn-primary">
+                    <span><i class="bi bi-pencil-square"></i></span>
+ 
+                </a>
+                <a href="#"  class="btn btn-sm btn-danger" onclick="deleteproduct({prod.product_id})">
+                      <i class="bi bi-trash"></i>
+                </a>
+            """
+        })
+    return JsonResponse({
+         "debug": True,
+        "draw": draw,
+        "recordsTotal": Product.objects.count(),
+        "recordsFiltered": total,
+        "data": data,
+    })
+    pass
 
