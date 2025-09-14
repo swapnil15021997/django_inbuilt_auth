@@ -18,6 +18,14 @@ urlpatterns = [
   path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
   path('api/logout/', views.logout_view, name='api_logout'),
 
+
+  path('api/product-list/', views.product_list, name='product_list'),
+
+
+path('api/product-save/', views.product_save, name='product_save'),
+
+  path('api/product-remove/', views.product_remove, name='product_remove'),
+
   
   
 ]

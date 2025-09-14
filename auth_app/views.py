@@ -9,7 +9,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password
-
+from .serializers import ProductSerializer
+from .models import Product
 
 def register_view(request):
     if request.method == "POST":
@@ -113,16 +114,86 @@ def logout_view(request):
 
 @api_view(['POST'])
 def product_save(request):
-    pass
+    id    = request.data.get('id')
+    name  = request.data.get('name')
+    price = request.data.get('price')
+
+    if id == '' or id == None:
+        serializer = ProductSerializer(data={'name': name, 'price': price})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Product created successfully', 'product': serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    else:
+        try:
+            get_prod = Product.objects.get(product_id=id)
+        except:
+            get_prod = None
+
+        if get_prod == None:
+            return Response({'message': 'Product does not exists'})
+
+        serializer = ProductSerializer(instance=get_prod,
+            data = {
+                'name': name, 
+                'price': price
+            },
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Product created successfully', 'product': serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['POST'])
 def product_list(request):
-    pass
+    
+    id = request.data.get('id')
+
+    if id == None or id == '':
+        prod = Product.objects.all()
+
+        prod_list = ProductSerializer(instance=prod,many=True)
+
+        return Response({
+            'data':prod_list.data
+        })
+
+
+    else:
+        get_prod = Product.objects.get(product_id=id)
+
+        prod_ser = ProductSerializer(instance=get_prod)
+
+        return Response({
+            'data':prod_ser.data
+        })
 
 @api_view(['POST'])
 def product_remove(request):
-    pass
+    id    = request.data.get('id')
+    if id == '' or id == None:
+        return Response({'message': 'Product id does not exists'})
+        
+    try:
+        get_prod = Product.object.get(product_id=id)
+    except:
+        get_prod = None
+
+    if get_prod == None:
+        return Response({'message': 'Product does not exists'})
+        
+
+    get_prod.delete()
+    return Response({'message': 'Product removed successfully', 'product': serializer.data}, status=status.HTTP_201_CREATED)
+        
+
 
 
 
